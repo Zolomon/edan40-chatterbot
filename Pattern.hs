@@ -27,14 +27,12 @@ match _ [] _ = Nothing
 
 -- Helper function to match
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
-singleWildcardMatch (_:ps) (x:xs) = if any (/= True) $ zipWith (==) ps xs
-                                     then Nothing
-                                     else Just [x]
-{- TO BE WRITTEN -}
+singleWildcardMatch (_:ps) (x:xs) = 
+  if all (== True) $ zipWith (==) ps xs
+  then Just [x]
+  else Nothing
+
 longerWildcardMatch (wc:ps) (x:xs) = Nothing
-{- TO BE WRITTEN -}
-
-
 
 -- Test cases --------------------
 
