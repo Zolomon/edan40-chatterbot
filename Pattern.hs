@@ -1,27 +1,35 @@
 module Pattern where
 import Utilities
 
-
 -------------------------------------------------------
 -- Match and substitute
 --------------------------------------------------------
 
 -- Replaces a wildcard in a list with the list given as the third argument
 substitute :: Eq a => a -> [a] -> [a] -> [a]
-substitute _ _ _ = []
-{- TO BE WRITTEN -}
-
+substitute _ [] _ = []
+substitute w (x:xs) s 
+  | w == x = s ++ substitute w xs s
+  | otherwise = x : substitute w xs s
 
 -- Tries to match two lists. If they match, the result consists of the sublist
 -- bound to the wildcard in the pattern list.
 match :: Eq a => a -> [a] -> [a] -> Maybe [a]
-match _ _ _ = Nothing
+match _ [] [] = Nothing
+match _ _  [] = Nothing
+match _ [] _ = Nothing
+-- match w (p:ps) (s:ss) 
+--   | p == s = match w ps ss
+--   | w == p = 
+-- match _ _ _ = Nothing
 {- TO BE WRITTEN -}
 
 
 -- Helper function to match
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
-singleWildcardMatch (wc:ps) (x:xs) = Nothing
+singleWildcardMatch (_:ps) (x:xs) = if any (/= True) $ zipWith (==) ps xs
+                                     then Nothing
+                                     else Just [x]
 {- TO BE WRITTEN -}
 longerWildcardMatch (wc:ps) (x:xs) = Nothing
 {- TO BE WRITTEN -}
