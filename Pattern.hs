@@ -28,15 +28,19 @@ match _ [] _ = Nothing
 -- Helper function to match
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
 singleWildcardMatch (_:ps) (x:xs) = 
-  if all (== True) $ zipWith (==) ps xs
-  then Just [x]
-  else Nothing
+   if all (== True) $ zipWith (==) ps xs  
+   then Just [x]
+   else Nothing
 
-longerWildcardMatch (wc:ps) (x:xs) = Nothing
+longerWildcardMatch _ [] = Just []
+longerWildcardMatch [] _ = Nothing
+longerWildcardMatch (wc:ps) (x:xs)  
+  | wc == x = longerWildcardMatch ps xs
+  | otherwise = Just xs
 
 -- Test cases --------------------
 
-testPattern =  "a=*;"
+testPattern = "a=*;"
 testSubstitutions = "32"
 testString = "a=32;"
 
