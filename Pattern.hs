@@ -58,10 +58,9 @@ matchCheck = matchTest == Just testSubstitutions
 
 -- Applying a single pattern
 transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
-transformationApply wc f s d = mmap (f . substitute wc (snd d)) $ match wc (fst d) s
+transformationApply wildcard func lookupString dictionary = mmap (func . substitute wildcard (snd dictionary)) $ match wildcard (fst dictionary) lookupString
 
 -- Applying a list of patterns until one succeeds
 transformationsApply :: Eq a => a -> ([a] -> [a]) -> [([a], [a])] -> [a] -> Maybe [a]
-transformationsApply _ _ _ _ = Nothing
-{- TO BE WRITTEN -}
-
+transformationsApply wildcard func dictionary lookupString = foldr t Nothing dictionary
+  where t x _ = transformationApply wildcard func lookupString x
