@@ -1,6 +1,6 @@
 module Pattern where
 import Utilities
-import Data.Maybe
+
 -------------------------------------------------------
 -- Match and substitute
 --------------------------------------------------------
