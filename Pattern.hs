@@ -1,6 +1,6 @@
 module Pattern where
 import Utilities
-
+import Data.Maybe
 -------------------------------------------------------
 -- Match and substitute
 --------------------------------------------------------
@@ -11,32 +11,32 @@ substitute _ [] _ = []
 substitute w (x:xs) s 
   | w == x = s ++ substitute w xs s
   | otherwise = x : substitute w xs s
-
+                
 -- Tries to match two lists. If they match, the result consists of the sublist
 -- bound to the wildcard in the pattern list.
 match :: Eq a => a -> [a] -> [a] -> Maybe [a]
-match _ [] [] = Nothing
+match _ [] [] = Just []
 match _ _  [] = Nothing
 match _ [] _ = Nothing
--- match w (p:ps) (s:ss) 
---   | p == s = match w ps ss
---   | w == p = 
--- match _ _ _ = Nothing
-{- TO BE WRITTEN -}
+match wc (p:ps) (s:ss)
+  | wc /= p = if p == s 
+              then match wc ps ss
+              else Nothing
+  | otherwise = longerWildcardMatch (p:ps) (s:ss) `orElse` singleWildcardMatch (p:ps) (s:ss)
 
 
 -- Helper function to match
 singleWildcardMatch, longerWildcardMatch :: Eq a => [a] -> [a] -> Maybe [a]
-singleWildcardMatch (_:ps) (x:xs) = 
-   if all (== True) $ zipWith (==) ps xs  
-   then Just [x]
-   else Nothing
+singleWildcardMatch [] [] = Just []
+singleWildcardMatch _ []  = Nothing
+singleWildcardMatch [] _  = Nothing
+singleWildcardMatch (wc:ps) (x:xs) = mmap (const [x]) (match wc ps xs)
 
-longerWildcardMatch _ [] = Just []
+longerWildcardMatch [] [] = Just []
+longerWildcardMatch _ [] = Nothing
 longerWildcardMatch [] _ = Nothing
-longerWildcardMatch (wc:ps) (x:xs)  
-  | wc == x = longerWildcardMatch ps xs
-  | otherwise = Just xs
+longerWildcardMatch (wc:ps) (x:xs) = mmap (x :) (match wc (wc:ps) xs)
+
 
 -- Test cases --------------------
 
