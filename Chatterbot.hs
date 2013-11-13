@@ -26,18 +26,24 @@ type BotBrain = [(Phrase, [Phrase])]
 
 --------------------------------------------------------
 
+-- Takes a brain, and returns a function that takes phrase and returns a random response.
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
-{- TO BE WRITTEN -}
-stateOfMind _ = return id
+stateOfMind brain = 
+  do 
+    r <- randomIO :: IO Float
+    (\sentence -> rulesApply ()
+  -- [([String], [[String]])] rulesApply (concatMap (\(x, xs) -> map ((,) x) xs) $ rulesCompile eliza) ["Why", "don't", "you", "fuck", "me", "?"]
+--stateOfMind _ = return id
 
+-- Returns a function that takes a Phrase (List of strings (words)) and returns the lookedup phrase in some dictionary, and applies reflect on the intermediate result before returning it. It applies a rule to a lookedup value.
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
-{- TO BE WRITTEN -}
-rulesApply _ = id
+-- rulesApply xs = try (transformationsApply "*" (reflect) xs)
+rulesApply dictionary sentence = try (transformationsApply "*" (reflect) dictionary) sentence
 
+-- Takes a phrase and returns a reflect phrase
 reflect :: Phrase -> Phrase
---reflect x = map (try (\y -> lookup y reflections) x) x
 reflect = map search
-  where search = try (\y -> lookup y reflections)
+  where search = try (\word -> lookup word reflections)
 
 reflections =
   [ ("am",     "are"),
@@ -70,9 +76,11 @@ present = unwords
 prepare :: String -> Phrase
 prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|") 
 
+-- Takes eliza structure and converts it to a bot brain
 rulesCompile :: [(String, [String])] -> BotBrain
-{- TO BE WRITTEN -}
-rulesCompile _ = []
+rulesCompile [] = []
+rulesCompile (x:xs) = (words $ fst x, map (prepare) (snd x)) : rulesCompile xs
+--rulesCompile _ = []
 
 
 --------------------------------------
