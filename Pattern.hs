@@ -19,9 +19,8 @@ match _ [] [] = Just []
 match _ _  [] = Nothing
 match _ [] _ = Nothing
 match wc (p:ps) (s:ss)
-  | wc /= p = if p == s 
-              then match wc ps ss
-              else Nothing
+  | p == s = match wc ps ss
+  | wc /= p = Nothing
   | otherwise = longerWildcardMatch (p:ps) (s:ss) `orElse` singleWildcardMatch (p:ps) (s:ss)
 
 
@@ -58,7 +57,7 @@ matchCheck = matchTest == Just testSubstitutions
 
 -- Applying a single pattern
 transformationApply :: Eq a => a -> ([a] -> [a]) -> [a] -> ([a], [a]) -> Maybe [a]
-transformationApply wildcard func target tuple = mmap (substitute wildcard (snd tuple)) (mmap func (match wildcard (fst tuple) target))
+transformationApply wildcard func target (key, value) = mmap (substitute wildcard value) (mmap func (match wildcard key target))
 
 
 -- Applying a list of patterns until one succeeds

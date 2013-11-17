@@ -38,13 +38,13 @@ stateOfMind brain =
 -- Returns a function that takes a Phrase (List of strings (words)) and returns the lookedup phrase in some dictionary, and applies reflect on the intermediate result before returning it. It applies a rule to a lookedup value.
 -- Returns a partially applied function.
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
-rulesApply dictionary = try (transformationsApply "*" (reflect) dictionary)
+rulesApply = try . transformationsApply "*" (reflect)
 
--- Takes a phrase and returns a reflect phrase
+-- Takes a phrase and returns a reflected phrase
 -- Returns a partially applied function. 
 reflect :: Phrase -> Phrase
-reflect = map search
-  where search = try (flip lookup reflections)
+reflect = map tryToReflectWord
+  where tryToReflectWord = try (flip lookup reflections)
 
 reflections =
   [ ("am",     "are"),
