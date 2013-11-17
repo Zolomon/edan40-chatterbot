@@ -26,24 +26,25 @@ type BotBrain = [(Phrase, [Phrase])]
 
 --------------------------------------------------------
 
--- Takes a brain, and returns a function that takes phrase and returns a random response.
+-- Takes a brain, and returns a function that which in turn takes phrase and returns a phrase (random response).
+-- Map the function that maps (id, pick r) over each tuple in the brain, feed it to rulesApply and return a random response.
 stateOfMind :: BotBrain -> IO (Phrase -> Phrase)
 stateOfMind brain = 
-  do 
-    r <- randomIO :: IO Float
-    (\sentence -> rulesApply ()
-  -- [([String], [[String]])] rulesApply (concatMap (\(x, xs) -> map ((,) x) xs) $ rulesCompile eliza) ["Why", "don't", "you", "fuck", "me", "?"]
---stateOfMind _ = return id
+   do 
+     r <- randomIO :: IO Float
+     return (rulesApply ((map . map2) (id, pick r) brain))
+
 
 -- Returns a function that takes a Phrase (List of strings (words)) and returns the lookedup phrase in some dictionary, and applies reflect on the intermediate result before returning it. It applies a rule to a lookedup value.
+-- Returns a partially applied function.
 rulesApply :: [PhrasePair] -> Phrase -> Phrase
--- rulesApply xs = try (transformationsApply "*" (reflect) xs)
-rulesApply dictionary sentence = try (transformationsApply "*" (reflect) dictionary) sentence
+rulesApply dictionary = try (transformationsApply "*" (reflect) dictionary)
 
 -- Takes a phrase and returns a reflect phrase
+-- Returns a partially applied function. 
 reflect :: Phrase -> Phrase
 reflect = map search
-  where search = try (\word -> lookup word reflections)
+  where search = try (flip lookup reflections)
 
 reflections =
   [ ("am",     "are"),
@@ -78,10 +79,7 @@ prepare = reduce . words . map toLower . filter (not . flip elem ".,:;*!#%&|")
 
 -- Takes eliza structure and converts it to a bot brain
 rulesCompile :: [(String, [String])] -> BotBrain
-rulesCompile [] = []
-rulesCompile (x:xs) = (words $ fst x, map (prepare) (snd x)) : rulesCompile xs
---rulesCompile _ = []
-
+rulesCompile = (map . map2) ((words . map toLower), map words)
 
 --------------------------------------
 
@@ -104,8 +102,7 @@ reductions = (map.map2) (words, words)
 reduce :: Phrase -> Phrase
 reduce = reductionsApply reductions
 
+-- Uses the fix function as a reducer with transformationsApply to reduce a phrase.
+-- Returns a partially applied function.
 reductionsApply :: [PhrasePair] -> Phrase -> Phrase
-{- TO BE WRITTEN -}
-reductionsApply _ = id
-
-
+reductionsApply = fix . try . transformationsApply "*" id 
